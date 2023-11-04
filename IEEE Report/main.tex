@@ -1,0 +1,174 @@
+\documentclass[journal, spanish]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\markboth{Estructuras De Datos}{Taller No. 3 Y 4}
+
+\title{Taller No. 7}
+\author{James Andres Cespedes Ibarra\thanks{} \\
+\textit{Fundación Universitaria Konrad Lorenz} \\
+}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{codestyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción}
+Una lista enlazada es una estructura de datos en la que los elementos están organizados en nodos, y cada nodo apunta al siguiente nodo en la secuencia. En algunos casos, una lista enlazada puede contener ciclos, lo que hace que la navegación sea complicada. El algoritmo de la "tortuga y la liebre" de Floyd es una técnica para detectar ciclos en una lista enlazada.
+
+En este artículo, presentamos un código Python que implementa este algoritmo y lo expone a través de una API web utilizando FastAPI. También utilizamos la librería NetworkX para visualizar la lista enlazada y resaltar los nodos que forman el ciclo si existe.
+
+\section{El codigo}
+El código se diseño y ejecuto con el lenguaje de programación Python y consta de varias partes:
+
+\subsection{Clase Nodo}
+La clase \texttt{Nodo} se utiliza para representar un nodo en la lista enlazada. Cada nodo contiene datos y una referencia al siguiente nodo.
+
+\lstset{style=codestyle}
+\lstinputlisting[language=Python, firstline=7, lastline=12]{codigo.py}
+
+\subsection{Función \texttt{floyd\_tortoise}}
+La función \texttt{floyd\_tortoise} implementa el algoritmo de la "tortuga y la liebre" de Floyd para detectar ciclos en una lista enlazada. Compara dos punteros que avanzan a diferentes velocidades a través de la lista.
+
+\lstinputlisting[language=Python, firstline=14, lastline=32]{codigo.py}
+
+\subsection{Función \texttt{crear\_lista\_enlazada}}
+La función \texttt{crear\_lista\_enlazada} toma una lista de datos en formato JSON y crea una lista enlazada. Si encuentra un nodo con datos repetidos, enlaza el nuevo nodo al nodo existente para formar un ciclo.
+
+\lstinputlisting[language=Python, firstline=34, lastline=62]{codigo.py}
+
+\subsection{Función \texttt{encontrar\_ciclo}}
+La función \texttt{encontrar\_ciclo} busca un ciclo en la lista enlazada utilizando el algoritmo de la "tortuga y la liebre" de Floyd.
+
+\lstinputlisting[language=Python, firstline=64, lastline=79]{codigo.py}
+
+\subsection{Función \texttt{visualizar\_lista\_enlazada}}
+La función \texttt{visualizar\_lista\_enlazada} utiliza NetworkX y Matplotlib para visualizar la lista enlazada. Resalta los nodos que forman el ciclo si existe.
+
+\lstinputlisting[language=Python, firstline=81, lastline=128]{codigo.py}
+
+\subsection{API Web con FastAPI}
+El código también incluye una API web utilizando FastAPI que expone la detección de ciclos en la lista enlazada.
+
+\lstinputlisting[language=Python, firstline=130, lastline=147]{codigo.py}
+
+\section{Configuración de DigitalOcean}
+Propiedades del Droplet:
+\begin{enumerate}
+    \item Memoria Ram: 512 MB / 1 CPU.
+     \item Memoria En Disco: 10 GB SSD.
+    \item Ancho De Banda: 500 GB De Transferencia.
+\end{enumerate}
+
+\section{Control de Versiones con Git}
+
+\subsection{Clonación del Repositorio}
+Para este proyecto se opto clonar un repositorio alojado en GITHUB.COM al servidor DigitalOcean en la ruta root/Microservicio:
+
+\begin{lstlisting}
+$ git clone <https://github.com/J4CIVY/Taller-7.git>
+\end{lstlisting}
+
+\section{Instalación y Configuración de las dependencias necesarias para la evecucion del proyecto}
+
+Instalacion de python3-pip,  FastAPI y Uvicorn:
+
+\begin{lstlisting}
+$ apt install python3-pip
+$ apt install python3-fastapi
+$ apt install python3-uvicorn
+\end{lstlisting}
+
+Ejecución preliminar del proyecto:
+
+\begin{lstlisting}
+$ uvicorn main:app --host 161.35.125.152 --port 3001 --reload
+\end{lstlisting}
+
+\section{Configuración de Nginx}
+Configuración del servidor web Nginx para redirigir las solicitudes al servidor FastAPI.
+
+\begin{lstlisting}
+$ apt-get install nginx
+$ root/Microservicio/Taller-7 /etc/nginx/sites-available/default
+\end{lstlisting}
+
+Agrega la configuración de Nginx:
+
+\begin{lstlisting}
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        location / {
+                proxy_pass http://161.35.125.152:3001;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+        }
+}
+\end{lstlisting}
+
+Activa el sitio y recarga Nginx:
+
+\begin{lstlisting}
+/etc/nginx/sites-enabled
+$ sudo service nginx restart
+\end{lstlisting}
+
+\section{Gestión de Procesos con PM2}
+PM2 es un administrador de procesos para Node.js. Ejecuta tu aplicación FastAPI con PM2 para asegurarte de que se ejecute en segundo plano y se reinicie en caso de fallo.
+
+\begin{lstlisting}
+$ pip install uvicorn
+$ pm2 start uvicorn main:app --name "Taller7"
+$ pm2 save
+$ pm2 startup
+\end{lstlisting}
+
+\section{Conclusiones}
+Este código en Python implementa una solución para detectar ciclos en una lista enlazada utilizando el algoritmo de la "tortuga y la liebre" de Floyd. Además, proporciona una interfaz web para interactuar con el algoritmo y visualizar la lista enlazada.
+
+El uso de las librerías FastAPI y NetworkX simplifica la implementación y visualización del algoritmo. Este código puede ser útil en situaciones en las que se necesita identificar ciclos en datos enlazados, como en estructuras de redes o rutas.
+
+% Bibliografía
+\bibliographystyle{IEEEtran}
+
+\cite{AlgoritmodedeteccióndeciclodetortugayliebredeFloyd}
+\cite{AlgoritmodedeteccióndeciclodeFloyd}
+\cite{Floyd’sCycleFindingAlgorithm}
+\cite{Taller5-ServicioIndicesInvertidos}
+
+\bibliography{bibliography}
+\vspace{12pt}
+\end{document}
